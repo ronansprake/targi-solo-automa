@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>A Feast for Odin score calculator</title>
+		<title>Targi solo automa</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="description" content="A score calculator for the board game A Feast for Odin, including scoring for one to four players">
 		<link rel="shortcut icon" href="/images/favicon.ico">
@@ -18,7 +18,7 @@
 			}
 			* { font-family: 'Open Sans', sans-serif; font-weight: 600; color: var(--neutral-800); box-sizing: border-box; }
 			body { background-color: #F6F6F6; margin: 0; padding: 0; position: relative; }
-			.wrap { max-width: 460px; margin: 0 auto; }
+			.wrap { max-width: 480px; margin: 0 auto; }
 			.hide { text-indent: -99em; position: absolute; left: -9999px; width: 0; height: 0; }
 			svg { display:block; }
 			ul, li { list-style: none; padding: 0; }
@@ -33,7 +33,7 @@
 			.button { border-radius: 4px; background: var(--neutral-800); color: #FFF; font-size: 16px; border: none; cursor: pointer; line-height: 18px; padding: 16px; display: flex; justify-content: center;}
 			.button-secondary { background: #FFF; color: var(--neutral-800); border: 1px solid var(--neutral-600);}
 			.button.full { width:100%; }
-			.button-tertiary { text-decoration:underline; }
+			.button-tertiary { font-size: 16px; text-decoration:underline; }
 			.frm-options ul {margin: 50px 0;}
 			.frm-options li {display: flex; gap: 10px; align-items: center; margin-bottom:30px; }
 			.frm-options label {flex: 1 0 0; }
@@ -130,28 +130,28 @@
 					<div class="goals">
 						<div class="goal">
 							<h3 class="heading-goal">Victory points</h3>
-							<p id="goal-vp-value" class="goal-value" style="display:none"></p>
+							<p class="goal-value js-goal-value" data-goal="vp" style="display:none"></p>
 							<button class="button-tertiary js-goal-clear" data-goal="vp" style="display:none">Clear</button>
 							<button class="button-tertiary js-goal-drop" data-goal="vp" style="display:none">Drop</button>
 							<button class="button button-secondary full js-goal-roll" data-goal="vp">Roll</button>
 						</div>
 						<div class="goal">
 							<h3 class="heading-goal">Resources</h3>
-							<p id="goal-resources-value" class="goal-value" style="display:none"></p>
+							<p class="goal-value js-goal-value" data-goal="resources" style="display:none"></p>
 							<button class="button-tertiary js-goal-clear" data-goal="resources" style="display:none">Clear</button>
 							<button class="button-tertiary js-goal-drop" data-goal="resources" style="display:none">Drop</button>
 							<button class="button button-secondary full js-goal-roll" data-goal="resources">Roll</button>
 						</div>
 						<div class="goal">
 							<h3 class="heading-goal">Robber / display</h3>
-							<p id="goal-robber-value" class="goal-value" style="display:none"></p>
+							<p class="goal-value js-goal-value" data-goal="robber" style="display:none"></p>
 							<button class="button-tertiary js-goal-clear" data-goal="robber" style="display:none">Clear</button>
 							<button class="button-tertiary js-goal-drop" data-goal="robber" style="display:none">Drop</button>
 							<button class="button button-secondary full js-goal-roll" data-goal="robber">Roll</button>
 						</div>
 						<div class="goal">
 							<h3 class="heading-goal">Rows</h3>
-							<p id="goal-rows-value" class="goal-value" style="display:none"></p>
+							<p class="goal-value js-goal-value" data-goal="rows" style="display:none"></p>
 							<button class="button-tertiary js-goal-clear" data-goal="rows" style="display:none">Clear</button>
 							<button class="button-tertiary js-goal-drop" data-goal="rows" style="display:none">Drop</button>
 							<button class="button button-secondary full js-goal-roll" data-goal="rows">Roll</button>
@@ -164,7 +164,7 @@
 						</button>
 					</h2>
 					<div class="obstacle">
-						<p id="goal-obstacle-value" class="obstacle-value" style="display:none"></p>
+						<p class="obstacle-value js-goal-value" data-goal="obstacle" style="display:none"></p>
 						<button class="button-tertiary js-goal-clear" data-goal="obstacle" style="display:none">Clear</button>
 						<button class="button button-secondary full js-goal-roll" data-goal="obstacle">Roll</button>
 					</div>
@@ -199,16 +199,38 @@
 				<h3>Robber / display</h3>
 				<ul class="unordered-list">
 					<li>Stop after card 14 / 15 / 16</li>
-					<li>Have 10 / 11 / 12 tribe cards</li>
+					<li>Display 10 / 11 / 12 tribe cards</li>
 				</ul>
 				<p>At the end of the game the robber must not have passed the stated card OR you will must have the stated amount of tribe cards in your display.</p>
 				<h3>Rows</h3>
 				<p>At the end of the game you must have # rows in your display:</p>
 				<ul class="unordered-list">
-					<li>Minimum of 1 row with (different cards / same cards)</li>
-					<li>Minimum of 1 row with different cards + 1 row with same cards</li>
-					<li>Minimum of 2 rows with (different cards / same cards)</li>
-					<li>3 rows all with (different cards / same cards)</li>
+					<li>Minimum of 1 row with (all different cards / all same cards)</li>
+					<li>Minimum of 1 row with all different cards + 1 row with all same cards</li>
+					<li>Minimum of 2 rows with (all different cards / all same cards)</li>
+					<li>3 rows all with (all different cards / all same cards)</li>
+				</ul>
+				<button type="submit" autofocus>close</button>
+			</form>
+		</dialog>
+
+		<dialog id="dialog-help-obstable">
+			<form method="dialog">
+				<h2>Obstacle</h2>
+				<p>The obstacles make the game more difficult.</p>
+				<ul class="unordered-list">
+					<li>You start the game without any resources, just the 4 victory points</li>
+					<li class="help-expansion">You can't exchange water for gold or resources without using the merchant</li>
+					<li>You must pay twice at the third raid</li>
+					<li class="help-expansion">You can't exchange water for gold or resources at the dealer</li>
+					<li>You can't place your targi opposite the robber</li>
+					<li class="help-expansion">You can't splace your targi opposite the targia</li>
+					<li>You lose the ability of your first tribal card. Turn this card upside down</li>
+					<li class="help-expansion">Remove the targia for this game</li>
+					<li>At every raid, you must pay one extra resource or victory point (each time, choose either)</li>
+					<li class="help-expansion">Every round, you can only place one targi on a shifting dune</li>
+					<li>At the end of the game, you get one fewer bonus point for each of your completed rows</li>
+					<li class="help-expansion">You can't receive victory points from shifting dunes (you still get resources)</li>
 				</ul>
 				<button type="submit" autofocus>close</button>
 			</form>
@@ -277,7 +299,72 @@
 					return 'human';
 				}
 				return 'andy';
-			}	
+			}
+
+			const triggersGoalRoll = document.querySelectorAll(".js-goal-roll");
+			const triggersGoalClear = document.querySelectorAll(".js-goal-clear");
+			const valueGoals = document.querySelectorAll(".js-goal-value");
+
+			triggersGoalRoll.forEach((triggerGoalRoll) => {
+				triggerGoalRoll.addEventListener('click', (event) => {
+					let goalOptions = [];
+					let goalOption = '';
+					switch (triggerGoalRoll.dataset.goal) {
+						case 'vp':
+							goalOptions = ["30 VP","31 VP","32 VP","33 VP","34 VP","35 VP","36 VP","37 VP","38 VP","39 VP","40 VP","40 VP"];
+						break;
+						case 'resources':
+							goalOptions = ["2 x dates", "2 x salt", "2 x pepper", "1 x gold", "1 x gold<br>1 x resource", "3 x resources"];
+							if (optionExpansion.checked) {
+								goalOptions.push("1 x water<br>1 x resource", "1 x water<br>1 x VP", "1 x water<br>1 x gold", "2 x water", "2 x water<br>1 x resource", "3 x water");
+							}
+						break;
+						case 'robber':
+							goalOptions = ["Stop after card 14", "Stop after card 15", "Stop after card 16", "Display 10 tribe cards", "Display 11 tribe cards", "Display 12 tribe cards"];
+						break;
+						case 'rows':
+							goalOptions = ["1 x all different", "1 x all same", "1 x all different<br>1 x all same", "2 x all different", "2 x all same", "3 x all different<br>or 3 x all same"];
+						break;
+						case 'obstacle':
+							goalOptions = ["You start the game without any resources, just the 4 victory points", "You must pay twice at the third raid", "You can't place your targi opposite the robber", "You lose the ability of your first tribal card (turn this card upside down)", "At every raid, you must pay one extra resource or victory point (each time, choose either)", "At the end of the game, you get one fewer bonus point for each of your completed rows"];
+							if (optionExpansion.checked) {
+								goalOptions.push("You can't exchange water for gold or resources without using the merchant", "You can't exchange water for gold or resources at the dealer", "You can't splace your targi opposite the targia", "Remove the targia for this game", "Every round, you can only place one targi on a shifting dune", "You can't receive victory points from shifting dunes (you still get resources)");
+							}
+						break;
+					}
+					triggerGoalRoll.style.display = "none";
+					triggersGoalClear.forEach((triggerGoalClear) => {
+						if (triggerGoalClear.dataset.goal == triggerGoalRoll.dataset.goal) {
+							triggerGoalClear.style = "";
+						}
+					});
+					valueGoals.forEach((valueGoal) => {
+						if (valueGoal.dataset.goal == triggerGoalRoll.dataset.goal) {
+							valueGoal.style = "";
+							goalOption = goalOptions[Math.random() * goalOptions.length | 0]
+							valueGoal.innerHTML = goalOption;
+						}
+					});
+					event.preventDefault();
+				});
+			});
+
+			triggersGoalClear.forEach((triggerGoalClear) => {
+				triggerGoalClear.addEventListener('click', (event) => {
+					triggerGoalClear.style.display = "none";
+					valueGoals.forEach((valueGoal) => {
+						if (valueGoal.dataset.goal == triggerGoalClear.dataset.goal) {
+							valueGoal.style.display = "none";
+						}
+					});
+					triggersGoalRoll.forEach((triggerGoalRoll) => {
+						if (triggerGoalRoll.dataset.goal == triggerGoalClear.dataset.goal) {
+							triggerGoalRoll.style = "";
+						}
+					});
+					event.preventDefault();
+				});
+			});
 
 			document.oncontextmenu = function() {
 				return false;
