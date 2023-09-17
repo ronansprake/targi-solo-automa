@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>A Feast for Odin score calculator</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="A score calculator for the board game A Feast for Odin, including scoring for one to four players">
+		<link rel="shortcut icon" href="/images/favicon.ico">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;700&display=swap" rel="stylesheet">
+		<style>
+			:root {
+				--neutral-800: #444B53;
+				--neutral-700: #7E878F;
+				--neutral-600: #A1A8AE;
+				--neutral-400: #DADCDD;
+			}
+			* { font-family: 'Open Sans', sans-serif; font-weight: 600; color: var(--neutral-800); box-sizing: border-box; }
+			body { background-color: #F6F6F6; margin: 0; padding: 0; position: relative; }
+			.wrap { max-width: 400px; margin: 0 auto; }
+			.hide { text-indent: -99em; position: absolute; left: -9999px; width: 0; height: 0; }
+			svg { display:block; }
+			ul, li { list-style: none; padding: 0; }
+			.unordered-list li { list-style: inside disc; }
+			fieldset { border: none; padding: 0; }
+			dialog { width: 30rem; max-width: 60vw; }
+			dialog button { position: absolute; top: 20px; right: 20px; }
+			dialog h2 { margin: 0 0 30px; }
+			dialog h3 { margin: 30px 0 20px; }
+			.visually-hidden { visibility: hidden; }
+			button { background: none; border: none; cursor: pointer; padding: 0; }
+			.button { border-radius: 4px; background: var(--neutral-800); color: #FFF; font-size: 16px; border: none; cursor: pointer; line-height: 18px; padding: 16px; display: flex; justify-content: center;}
+			.button-secondary { background: #FFF; color: var(--neutral-800); border: 1px solid var(--neutral-600);}
+			.button.full { width:100%; }
+			.button-tertiary { text-decoration:underline; }
+			.frm-options ul {margin: 50px 0;}
+			.frm-options li {display: flex; gap: 10px; align-items: center; margin-bottom:30px; }
+			.frm-options label {flex: 1 0 0; }
+			.links { margin: 0; text-align: center; font-size: 16px; }
+			.links a { color: var(--neutral-700); display: block; margin-bottom: 20px; }
+			.links .light { color: var(--neutral-600); }
+			.heading-screen { font-size: 26px; text-align: center; margin: 0; }
+			.heading-group { background: var(--neutral-400); font-size: 20px; padding: 10px 20px; margin: 0;display: flex; gap: 10px; align-items: center; }
+			.heading-group span {flex: 1 0 0; }
+			.heading-goal { font-size: 17px; margin: 0 0 15px; }
+			.goals { display: grid; grid-template-columns: repeat(2, 1fr) }
+			.goal { padding: 20px 20px 30px;}
+			.goal:nth-child(1), .goal:nth-child(2) { border-bottom: 1px solid var(--neutral-600); }
+			.goal:nth-of-type(odd) { border-right: 1px solid var(--neutral-600); }
+			.obstacle { border-bottom: 1px solid var(--neutral-600); padding: 30px 20px; }
+			.goal-value { font-size: 24px; margin: 0; }
+			.obstacle .button-tertiary { margin-top: 20px; }
+			.obstacle-value { font-size: 20px; margin: 0; }
+			.goals .button-tertiary { font-size: 16px; }
+			.goals .button, .goals .button-tertiary { margin-top: 20px; }
+			.stage-intro { padding: 40px 20px 0;}
+			.stage-intro, .stage-game {margin-bottom: 30px;}
+			.footer-buttons { display:flex; padding: 30px 20px 0; gap: 40px; }
+			.footer-buttons .button { flex: 1; }
+			.play-area { padding: 30px; display: flex; justify-content: space-between; align-items: center; }
+			.status { padding: 20px; background: #FFF; border-radius: 8px; box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); text-align:center; min-height: 130px; min-width: 100px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+			.status.centred { justify-content: center; }
+			.status > div { display: flex; flex-direction: column; }
+			.status p { margin: 0; }
+			.status .status-player { font-weight: 700; }
+			.action { width: 190px; text-align: center; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
+			.action p { margin: 0; }
+			.action .button { max-width:160px; }
+			.action-text { height: 40px; display: flex; justify-content: center; align-items: center; gap: 10px }
+			.action-text.action-text-large { font-size: 26px; }
+		</style>
+	</head>
+
+	<body>
+		<div class="wrap">
+			<div id="stage">
+				<div id="stage-intro" class="stage-intro">
+					<h1 class="heading-screen">Targi solo</h1>
+					<form id="frm-options" class="frm-options" type="post">
+						<fieldset>
+							<ul>
+								<li>
+									<label for="frm-option-expansion">Play with expansion</label>
+									<input type="checkbox" id="frm-option-expansion" name="frm-option-expansion">
+								</li>
+								<li>
+									<label for="frm-option-first">You go first (not random)</label>
+									<input type="checkbox" id="frm-option-first" name="frm-option-first">
+								</li>
+								<li>
+									<label for="frm-option-drop">Option to drop a goal during raid 2</label>
+									<input type="checkbox" id="frm-option-drop" name="frm-option-drop">
+								</li>
+								<li>
+									<label for="frm-option-rerolls">Allow re-rolls x 2</label>
+									<input type="checkbox" id="frm-option-rerolls" name="frm-option-rerolls">
+								</li>
+							</ul>
+							<button class="button full" id="button-intro-continue">Continue</button>
+						</fieldset>
+					</form>
+				</div>
+				<div id="stage-game" class="stage-game" style="display:none">
+					<div id="play-area" class="play-area" style="display:none">
+						<div class="status">
+							<div>
+								<p id="status-round">Round 1</p>
+								<p id="status-turn">Turn 1</p>
+							</div>
+							<p id="status-player" class="status-player">You</p>
+						</div>
+						<div class="action">
+							<p class="action-human" style="display:none"><span id="action-human-text"></span></p>
+							<div id="action-andy" class="action-text action-text-large" style="display:none">
+								<p id="action-andy-text"></p>
+								<button id="help-move">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none"><g clip-path="url(#clip0_204_42)"><path d="M8 15.1668C11.6819 15.1668 14.6667 12.1821 14.6667 8.50016C14.6667 4.81826 11.6819 1.8335 8 1.8335C4.3181 1.8335 1.33333 4.81826 1.33333 8.50016C1.33333 12.1821 4.3181 15.1668 8 15.1668Z" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.1667V8.5" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5.8335H8.00667" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_204_42"><rect width="16" height="16" fill="white" transform="translate(0 0.5)"/></clipPath></defs></svg>
+								</button>
+							</div>
+							<button id="button-action-done" class="button full">Done</button>
+						</div>
+					</div>
+					<h2 class="heading-group">
+						<span>Goals</span>
+						<button id="help-goals">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none"><g clip-path="url(#clip0_204_42)"><path d="M8 15.1668C11.6819 15.1668 14.6667 12.1821 14.6667 8.50016C14.6667 4.81826 11.6819 1.8335 8 1.8335C4.3181 1.8335 1.33333 4.81826 1.33333 8.50016C1.33333 12.1821 4.3181 15.1668 8 15.1668Z" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.1667V8.5" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5.8335H8.00667" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_204_42"><rect width="16" height="16" fill="white" transform="translate(0 0.5)"/></clipPath></defs></svg>
+						</button>
+					</h2>
+					<div class="goals">
+						<div class="goal">
+							<h3 class="heading-goal">Victory points</h3>
+							<p id="goal-vp-value" class="goal-value" style="display:none"></p>
+							<button class="button-tertiary js-goal-clear" data-goal="vp" style="display:none">Clear</button>
+							<button class="button-tertiary js-goal-drop" data-goal="vp" style="display:none">Drop</button>
+							<button class="button button-secondary full js-goal-roll" data-goal="vp">Roll</button>
+						</div>
+						<div class="goal">
+							<h3 class="heading-goal">Resources</h3>
+							<p id="goal-resources-value" class="goal-value" style="display:none"></p>
+							<button class="button-tertiary js-goal-clear" data-goal="resources" style="display:none">Clear</button>
+							<button class="button-tertiary js-goal-drop" data-goal="resources" style="display:none">Drop</button>
+							<button class="button button-secondary full js-goal-roll" data-goal="resources">Roll</button>
+						</div>
+						<div class="goal">
+							<h3 class="heading-goal">Robber / display</h3>
+							<p id="goal-robber-value" class="goal-value" style="display:none"></p>
+							<button class="button-tertiary js-goal-clear" data-goal="robber" style="display:none">Clear</button>
+							<button class="button-tertiary js-goal-drop" data-goal="robber" style="display:none">Drop</button>
+							<button class="button button-secondary full js-goal-roll" data-goal="robber">Roll</button>
+						</div>
+						<div class="goal">
+							<h3 class="heading-goal">Rows</h3>
+							<p id="goal-rows-value" class="goal-value" style="display:none"></p>
+							<button class="button-tertiary js-goal-clear" data-goal="rows" style="display:none">Clear</button>
+							<button class="button-tertiary js-goal-drop" data-goal="rows" style="display:none">Drop</button>
+							<button class="button button-secondary full js-goal-roll" data-goal="rows">Roll</button>
+						</div>
+					</div>
+					<h2 class="heading-group">
+						<span>Obstacle</span>
+						<button id="help-obstacle">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none"><g clip-path="url(#clip0_204_42)"><path d="M8 15.1668C11.6819 15.1668 14.6667 12.1821 14.6667 8.50016C14.6667 4.81826 11.6819 1.8335 8 1.8335C4.3181 1.8335 1.33333 4.81826 1.33333 8.50016C1.33333 12.1821 4.3181 15.1668 8 15.1668Z" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.1667V8.5" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5.8335H8.00667" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_204_42"><rect width="16" height="16" fill="white" transform="translate(0 0.5)"/></clipPath></defs></svg>
+						</button>
+					</h2>
+					<div class="obstacle">
+						<p id="goal-obstacle-value" class="obstacle-value" style="display:none"></p>
+						<button class="button-tertiary js-goal-clear" data-goal="obstacle" style="display:none">Clear</button>
+						<button class="button button-secondary full js-goal-roll" data-goal="obstacle">Roll</button>
+					</div>
+					<div class="footer-buttons">
+						<button class="button" id="button-start">Start game</button>
+						<button class="button button-secondary" id="button-back">Back</button>
+						<button class="button button-secondary" id="button-reset" style="display:none">Reset game</button>
+					</div>
+				</div>
+				<p class="links">
+					<a href="https://boardgamegeek.com/file/download_redirect/2a70dca43bd16f4f30e2fd9dbf1cdf856618c96a4c036f21/Targi+Solo+English+Rules++Version+2+PDF.pdf" target="_blank">Full solo rules</a>
+					<!--<a href="https://ronansprake.co.uk/board-game-score-calculators#contact" target="_blank" class="light">Could this be better? Send me feedback</a>-->
+				</p>
+			</div>
+		</div>
+
+		<dialog id="dialog-help-goals">
+			<form method="dialog">
+				<h2>Goals</h2>
+				<h3>Victory points</h3>
+				<p>Minimum between 30 and 40 VP</p>
+				<h3>Resources</h3>
+				<ul class="unordered-list">
+					<li>2 / 3 x same goods</li>
+					<li>1 x gold</li>
+					<li>1 x gold + 1 x goods</li>
+					<li class="help-expansion">2 / 3 x water</li>
+					<li class="help-expansion">1 x water + (1 x goods / 1 VP token / 1 x gold)</li>
+					<li class="help-expansion">2 x water + 1 x goods</li>
+				</ul>
+				<p class="help-expansion">You still get victory points for water, even if you have to own it to fulfill this objective.</p>
+				<h3>Robber / display</h3>
+				<ul class="unordered-list">
+					<li>Stop after card 14 / 15 / 16</li>
+					<li>Have 10 / 11 / 12 tribe cards</li>
+				</ul>
+				<p>At the end of the game the robber must not have passed the stated card OR you will must have the stated amount of tribe cards in your display.</p>
+				<h3>Rows</h3>
+				<p>At the end of the game you must have # rows in your display:</p>
+				<ul class="unordered-list">
+					<li>Minimum of 1 row with (different cards / same cards)</li>
+					<li>Minimum of 1 row with different cards + 1 row with same cards</li>
+					<li>Minimum of 2 rows with (different cards / same cards)</li>
+					<li>3 rows all with (different cards / same cards)</li>
+				</ul>
+				<button type="submit" autofocus>close</button>
+			</form>
+		</dialog>
+
+		<dialog id="dialog-help-move">
+			<form method="dialog">
+				<h2>Placing Andy's targi</h2>
+				<p>If the border card is occupied or forbidden, choose the next free one (counting clockwise).</p>
+				<p>After placing all the targi you do all of your actions normally. Discard any intersection cards Andy claims without performing any actions.</p>
+				<div class="help-expansion">
+					<p>If Andy would place his targi on the card occupied by the robber OR on card 15 which is occupied or forbidden, do not place his targi on the next free card. Instead, put it on the next free shifting sand dune (whichever is closest to the dune deck. If there is not a free shifting dune, his targi is placed on the noble card (1) or the next free clockwise card as usual.
+					<p>Every shifting sand dune claimed by Andy is discarded.</p>
+				</div>
+				<button type="submit" autofocus>close</button>
+			</form>
+		</dialog>
+
+		<script>
+			const body = document.querySelector("body");
+
+			const buttonIntroContinue = document.getElementById('button-intro-continue');
+			const buttonBack = document.getElementById('button-back');
+			const stageGame = document.getElementById('stage-game');
+			const stageIntro = document.getElementById('stage-intro');
+
+			buttonIntroContinue.addEventListener('click', (event) => {
+				stageIntro.style.display = "none";
+				stageGame.style = "";
+				event.preventDefault();
+			});
+
+			buttonBack.addEventListener('click', (event) => {
+				stageGame.style.display = "none";
+				stageIntro.style = "";
+				event.preventDefault();
+			});
+
+			const optionExpansion = document.getElementById('frm-option-expansion');
+			const optionFirst = document.getElementById('frm-option-first');
+			const optionDrop = document.getElementById('frm-option-drop');
+			const optionRerolls = document.getElementById('frm-option-rerolls');
+
+			const triggerHelpMove = document.getElementById('help-move');
+			const dialogHelpMove = document.getElementById('dialog-help-move');
+
+			triggerHelpMove.addEventListener('click', (event) => {
+				dialogHelpMove.showModal();
+			});
+
+			const triggerHelpGoals = document.getElementById('help-goals');
+			const dialogHelpGoals = document.getElementById('dialog-help-goals');
+
+			triggerHelpGoals.addEventListener('click', (event) => {
+				dialogHelpGoals.showModal();
+			});
+
+			function getRandomInt(max) {
+				return Math.floor(Math.random() * max);
+			}
+
+			window.console.log(getStartingPlayer());
+
+			function getStartingPlayer() {
+				if (optionFirst.checked || getRandomInt(10) % 2 == 0) {
+					return 'human';
+				}
+				return 'andy';
+			}	
+
+			document.oncontextmenu = function() {
+				return false;
+			}
+		</script>
+	</body>
+</html>
