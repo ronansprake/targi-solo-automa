@@ -24,7 +24,7 @@
 			ul, li { list-style: none; padding: 0; }
 			.unordered-list li { list-style: inside disc; }
 			fieldset { border: none; padding: 0; }
-			dialog { width: 30rem; max-width: 60vw; }
+			dialog { width: 480px; max-width: 80vw; }
 			dialog button { position: absolute; top: 20px; right: 20px; }
 			dialog h2 { margin: 0 0 30px; }
 			dialog h3 { margin: 30px 0 20px; }
@@ -51,7 +51,6 @@
 			.obstacle { border-bottom: 1px solid var(--neutral-600); padding: 30px 20px; }
 			.goal-value { font-size: 24px; margin: 0; }
 			.obstacle .button-tertiary { margin-top: 20px; }
-			.obstacle-value { font-size: 20px; margin: 0; }
 			.goals .button-tertiary { font-size: 16px; }
 			.goals .button, .goals .button-tertiary { margin-top: 20px; }
 			.stage-intro { padding: 40px 20px 0;}
@@ -59,16 +58,17 @@
 			.footer-buttons { display:flex; padding: 30px 20px 0; gap: 40px; }
 			.footer-buttons .button { flex: 1; }
 			.play-area { padding: 30px; display: flex; justify-content: space-between; align-items: center; }
-			.status { padding: 20px; background: #FFF; border-radius: 8px; box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); text-align:center; min-height: 130px; min-width: 100px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+			.status { padding: 20px; background: #FFF; border-radius: 8px; box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); text-align:center; min-height: 130px; min-width: 104px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
 			.status.centred { justify-content: center; }
 			.status > div { display: flex; flex-direction: column; }
 			.status p { margin: 0; }
 			.status .status-player { font-weight: 700; }
 			.action { width: 190px; text-align: center; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
 			.action p { margin: 0; }
-			.action .button { max-width:160px; }
-			.action-text { height: 40px; display: flex; justify-content: center; align-items: center; gap: 10px }
+			.action .button { max-width:140px; }
+			.action-text { height: 44px; display: flex; justify-content: center; align-items: center; gap: 10px }
 			.action-text.action-text-large { font-size: 26px; }
+			.action-buttons { display: flex; justify-content: space-around; width: 100%; }
 		</style>
 	</head>
 
@@ -93,7 +93,7 @@
 									<input type="checkbox" id="frm-option-drop" name="frm-option-drop">
 								</li>
 								<li>
-									<label for="frm-option-rerolls">Allow re-rolls x 2</label>
+									<label for="frm-option-rerolls">Allow Andy re-rolls x 2</label>
 									<input type="checkbox" id="frm-option-rerolls" name="frm-option-rerolls">
 								</li>
 							</ul>
@@ -103,7 +103,7 @@
 				</div>
 				<div id="stage-game" class="stage-game" style="display:none">
 					<div id="play-area" class="play-area" style="display:none">
-						<div class="status">
+						<div id="status-box" class="status">
 							<div>
 								<p id="status-round">Round 1</p>
 								<p id="status-turn">Turn 1</p>
@@ -111,14 +111,17 @@
 							<p id="status-player" class="status-player">You</p>
 						</div>
 						<div class="action">
-							<p class="action-human" style="display:none"><span id="action-human-text"></span></p>
+							<p id="action-human" class="action-text" style="display:none"><span id="action-human-text"></span></p>
 							<div id="action-andy" class="action-text action-text-large" style="display:none">
 								<p id="action-andy-text"></p>
 								<button id="help-move">
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none"><g clip-path="url(#clip0_204_42)"><path d="M8 15.1668C11.6819 15.1668 14.6667 12.1821 14.6667 8.50016C14.6667 4.81826 11.6819 1.8335 8 1.8335C4.3181 1.8335 1.33333 4.81826 1.33333 8.50016C1.33333 12.1821 4.3181 15.1668 8 15.1668Z" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.1667V8.5" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5.8335H8.00667" stroke="#444B53" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_204_42"><rect width="16" height="16" fill="white" transform="translate(0 0.5)"/></clipPath></defs></svg>
 								</button>
 							</div>
-							<button id="button-action-done" class="button full">Done</button>
+							<div id="action-buttons" class="action-buttons">
+								<button id="button-action-done" class="button full">Done</button>
+								<button id="button-action-reroll" class="button-tertiary" style="display: none;">Re-roll (<span id="display-number-rerolls">2</span>)</button>
+							</div>
 						</div>
 					</div>
 					<h2 class="heading-group">
@@ -164,7 +167,7 @@
 						</button>
 					</h2>
 					<div class="obstacle">
-						<p class="obstacle-value js-goal-value" data-goal="obstacle" style="display:none"></p>
+						<p class="goal-value js-goal-value" data-goal="obstacle" style="display:none"></p>
 						<button class="button-tertiary js-goal-clear" data-goal="obstacle" style="display:none">Clear</button>
 						<button class="button button-secondary full js-goal-roll" data-goal="obstacle">Roll</button>
 					</div>
@@ -197,13 +200,13 @@
 				</ul>
 				<p class="help-expansion">You still get victory points for water, even if you have to own it to fulfill this objective.</p>
 				<h3>Robber / display</h3>
+				<p>Either the game is shortened, or you must have a number of tribe cards in your display.</p>
 				<ul class="unordered-list">
-					<li>Stop after card 14 / 15 / 16</li>
+					<li>Max round is card 14 / 15 / 16</li>
 					<li>Display 10 / 11 / 12 tribe cards</li>
 				</ul>
-				<p>At the end of the game the robber must not have passed the stated card OR you will must have the stated amount of tribe cards in your display.</p>
 				<h3>Rows</h3>
-				<p>At the end of the game you must have # rows in your display:</p>
+				<p>At the end of the game you must have a number of rows in your display:</p>
 				<ul class="unordered-list">
 					<li>Minimum of 1 row with (all different cards / all same cards)</li>
 					<li>Minimum of 1 row with all different cards + 1 row with all same cards</li>
@@ -214,22 +217,22 @@
 			</form>
 		</dialog>
 
-		<dialog id="dialog-help-obstable">
+		<dialog id="dialog-help-obstacle">
 			<form method="dialog">
 				<h2>Obstacle</h2>
 				<p>The obstacles make the game more difficult.</p>
 				<ul class="unordered-list">
-					<li>You start the game without any resources, just the 4 victory points</li>
+					<li>You start the game without any resources, just 4 victory points</li>
 					<li class="help-expansion">You can't exchange water for gold or resources without using the merchant</li>
 					<li>You must pay twice at the third raid</li>
 					<li class="help-expansion">You can't exchange water for gold or resources at the dealer</li>
 					<li>You can't place your targi opposite the robber</li>
-					<li class="help-expansion">You can't splace your targi opposite the targia</li>
+					<li class="help-expansion">You can't place your targi opposite the targia</li>
 					<li>You lose the ability of your first tribal card. Turn this card upside down</li>
 					<li class="help-expansion">Remove the targia for this game</li>
 					<li>At every raid, you must pay one extra resource or victory point (each time, choose either)</li>
-					<li class="help-expansion">Every round, you can only place one targi on a shifting dune</li>
-					<li>At the end of the game, you get one fewer bonus point for each of your completed rows</li>
+					<li class="help-expansion">Each round, you can only place one targi on a shifting dune</li>
+					<li>At the end of the game, you get one less bonus point for each completed row</li>
 					<li class="help-expansion">You can't receive victory points from shifting dunes (you still get resources)</li>
 				</ul>
 				<button type="submit" autofocus>close</button>
@@ -250,12 +253,197 @@
 		</dialog>
 
 		<script>
-			const body = document.querySelector("body");
+
+			// Start constants / lets
 
 			const buttonIntroContinue = document.getElementById('button-intro-continue');
 			const buttonBack = document.getElementById('button-back');
+			const buttonReset = document.getElementById('button-reset');
+			const buttonStart = document.getElementById('button-start');
+			const actionButtons = document.getElementById('action-buttons');
+			const buttonActionDone = document.getElementById('button-action-done');
+			const buttonActionReroll = document.getElementById('button-action-reroll');
+
 			const stageGame = document.getElementById('stage-game');
 			const stageIntro = document.getElementById('stage-intro');
+			const playArea = document.getElementById('play-area');
+			const statusBox = document.getElementById('status-box');
+			const displayNumberRerolls = document.getElementById('display-number-rerolls');
+
+			const statusRound = document.getElementById('status-round');
+			const statusTurn = document.getElementById('status-turn');
+			const statusGoal = document.getElementById('status-goal');
+			const statusPlayer = document.getElementById('status-player');
+
+			const actionHuman = document.getElementById('action-human');
+			const actionHumanText = document.getElementById('action-human-text');
+			const actionAndy = document.getElementById('action-andy');
+			const actionAndyText = document.getElementById('action-andy-text');
+
+			const triggersGoalRoll = document.querySelectorAll(".js-goal-roll");
+			const triggersGoalClear = document.querySelectorAll(".js-goal-clear");
+			const triggersGoalDrop = document.querySelectorAll(".js-goal-drop");
+			const valueGoals = document.querySelectorAll(".js-goal-value");
+
+			const optionExpansion = document.getElementById('frm-option-expansion');
+			const optionFirst = document.getElementById('frm-option-first');
+			const optionDrop = document.getElementById('frm-option-drop');
+			const optionRerolls = document.getElementById('frm-option-rerolls');
+
+			const triggerHelpMove = document.getElementById('help-move');
+			const triggerHelpGoals = document.getElementById('help-goals');
+			const triggerHelpObstacle = document.getElementById('help-obstacle');
+
+			const dialogHelpMove = document.getElementById('dialog-help-move');
+			const dialogHelpGoals = document.getElementById('dialog-help-goals');
+			const dialogHelpObstacle = document.getElementById('dialog-help-obstacle');
+
+			const goalVP = ["30 VP","31 VP","32 VP","33 VP","34 VP","35 VP","36 VP","37 VP","38 VP","39 VP","40 VP","40 VP"];
+			const goalResources = ["2 x dates", "2 x salt", "2 x pepper", "1 x gold", "1 x gold<br>1 x resource", "3 x resources"];
+			const goalResourcesExpansion = ["1 x water<br>1 x resource", "1 x water<br>1 x VP", "1 x water<br>1 x gold", "2 x water", "2 x water<br>1 x resource", "3 x water"];
+			const goalRobber = ["Stop after card 14", "Stop after card 15", "Stop after card 16", "Display 10 tribe cards", "Display 11 tribe cards", "Display 12 tribe cards"];
+			const goalRow = ["1 x all different", "1 x all same", "1 x all different<br>1 x all same", "2 x all different", "2 x all same", "3 x all different<br>or 3 x all same"];
+			const goalObstacle = ["You start the game without any resources, just 4 victory points", "You must pay twice at the third raid", "You can't place your targi opposite the robber", "You lose the ability of your first tribal card (turn this card upside down)", "At every raid, you must pay one extra resource or victory point (each time, choose either)", "At the end of the game, you get one less bonus point for each completed row"];
+			const goalObstacleExpansion = ["You can't exchange water for gold or resources without using the merchant", "You can't exchange water for gold or resources at the dealer", "You can't place your targi opposite the targia", "Remove the targia for this game", "Each round, you can only place one targi on a shifting dune", "You can't receive victory points from shifting dunes (you still get resources)"];
+
+			const raids = ["1 x goods / 1 x VP", "2 x goods / 1 x VP", "3 x goods / 2 x VP", "1 x gold / 3 x VP"];
+			const raidsExpansion = ["1 x pepper / 1 x VP", "1 x salt, dates / 1 x VP", "1 x salt, dates, pepper / 1 x VP", "1 x gold / 1 x 4th tribe card"];
+
+			const textDrop = "<br>Drop a goal (optional)";
+			const textNoGoal = "No goal"
+			const textActionHuman = "Place your targi";
+			const textActionAndy = "Card";
+
+			let currentPlayer = '';
+			let currentRound = 1;
+			let currentTurn = 0;
+			let currentRaid = 0;
+			let currentRerolls = 0;
+
+			// End constants / lets
+
+			// Start helper functions
+
+			function getRandomInt(min, max) {
+				return Math.floor(Math.random() * max) + min;
+			}
+
+			function getStartingPlayer() {
+				if (optionFirst.checked || getRandomInt(0, 10) % 2 == 0) {
+					return 'You';
+				}
+				return 'Andy';
+			}
+
+			function setCurrentPlayer() {
+				if (currentPlayer == '') {
+					return currentPlayer = getStartingPlayer();
+				} else if (currentPlayer == 'Andy') {
+					return currentPlayer = 'You';
+				} else {
+					return currentPlayer = 'Andy';
+				}
+			}
+
+			function setRoundInfo() {
+				statusRound.innerHTML = "Round " + currentRound;
+				statusTurn.style = '';
+				statusTurn.innerHTML = "Turn " + Math.ceil(currentTurn / 2);
+				statusPlayer.style = '';
+				statusPlayer.innerHTML = currentPlayer;
+				statusBox.classList.remove("centred");
+				if (currentPlayer == "You") {
+					actionHuman.style = '';
+					actionHumanText.innerHTML = textActionHuman;
+					actionAndy.style.display = 'none';
+					actionAndyText.innerHTML = '';
+				} else {
+					actionAndy.style = '';
+					actionAndyText.innerHTML = textActionAndy + " " + getRandomInt(1, 15);
+					actionHuman.style.display = 'none';
+					actionHumanText.innerHTML = '';
+				}
+			}
+
+			function setRaidInfo() {
+				statusRound.innerHTML = "Raid " + currentRaid;
+				statusTurn.style.display = 'none';
+				statusPlayer.style.display = 'none';
+				actionAndy.style.display = 'none';
+				actionAndyText.innerHTML = '';
+				actionHuman.style = '';
+				statusBox.classList.add("centred");
+				if (optionExpansion.checked) {
+					actionHumanText.innerHTML = raidsExpansion[currentRaid - 1];
+				} else {
+					actionHumanText.innerHTML = raids[currentRaid - 1];
+				}
+			}
+
+			function setActions() {
+				if (currentPlayer == 'Andy' && currentTurn > 0 && optionRerolls.checked && currentRerolls < 2) {
+					displayNumberRerolls.innerHTML = 2 - currentRerolls;
+					buttonActionReroll.style = '';
+					buttonActionDone.classList.remove('full');
+				} else {
+					buttonActionReroll.style.display = 'none';
+					buttonActionDone.classList.add('full');
+				}
+			}
+
+			function startNewTurn() {
+				setCurrentPlayer();
+				if (currentTurn < 6) {
+					currentTurn = currentTurn + 1;
+					setRoundInfo();
+					setActions();
+				} else {
+					currentTurn = 0;
+					currentRound = currentRound + 1;
+					currentRaid = currentRaid + 1;
+					setRaidInfo();
+					setActions();
+					if (currentRaid == 2) {
+						showGoalDropButtons();
+						actionHumanText.innerHTML += textDrop;
+					}
+					if (currentRaid == 4) {
+						actionButtons.style.display = 'none';
+					}
+				}
+			}
+
+			function takeReroll() {
+				var currentRoll = actionAndyText.innerHTML;
+				var newRoll = textActionAndy + " " + getRandomInt(1, 15);
+				if (currentRoll == newRoll) {
+					takeReroll();
+				} else {
+					actionAndyText.innerHTML = newRoll;
+					currentRerolls = currentRerolls + 1;
+					setActions();
+				}
+			}
+
+			function showGoalDropButtons() {
+				triggersGoalDrop.forEach((triggerGoalDrop) => {
+					valueGoals.forEach((valueGoal) => {
+						if (valueGoal.dataset.goal == triggerGoalDrop.dataset.goal) {
+							if (valueGoal.innerHTML != textNoGoal) {
+								triggerGoalDrop.style = "";
+							}
+						}
+					});
+				});
+			}
+
+			document.oncontextmenu = function() {
+				return false; // Suppress right-click
+			}
+
+			// End helper functions
+
+			// Start main buttons
 
 			buttonIntroContinue.addEventListener('click', (event) => {
 				stageIntro.style.display = "none";
@@ -269,41 +457,61 @@
 				event.preventDefault();
 			});
 
-			const optionExpansion = document.getElementById('frm-option-expansion');
-			const optionFirst = document.getElementById('frm-option-first');
-			const optionDrop = document.getElementById('frm-option-drop');
-			const optionRerolls = document.getElementById('frm-option-rerolls');
+			buttonStart.addEventListener('click', (event) => {
+				triggersGoalRoll.forEach((triggerGoalRoll) => {
+					triggerGoalRoll.style.display = "none";
+				});
+				triggersGoalClear.forEach((triggerGoalClear) => {
+					triggerGoalClear.style.display = "none";
+				});
+				valueGoals.forEach((valueGoal) => {
+					if (valueGoal.innerHTML == "") {
+						valueGoal.innerHTML = textNoGoal;
+						valueGoal.style = "";
+					}
+				});
+				buttonStart.style.display = "none";
+				buttonBack.style.display = "none";
+				playArea.style = "";
+				buttonReset.style = "";
+				startNewTurn();
+				event.preventDefault();
+			});
 
-			const triggerHelpMove = document.getElementById('help-move');
-			const dialogHelpMove = document.getElementById('dialog-help-move');
+			buttonActionDone.addEventListener('click', (event) => {
+				startNewTurn();
+				event.preventDefault();
+			});
+
+			buttonActionReroll.addEventListener('click', (event) => {
+				takeReroll();
+				event.preventDefault();
+			});
+
+			buttonReset.addEventListener('click', (event) => {
+				location.reload();
+				event.preventDefault();
+			});
+
+			// End main buttons
+
+			// Start help dialogs
 
 			triggerHelpMove.addEventListener('click', (event) => {
 				dialogHelpMove.showModal();
 			});
 
-			const triggerHelpGoals = document.getElementById('help-goals');
-			const dialogHelpGoals = document.getElementById('dialog-help-goals');
-
 			triggerHelpGoals.addEventListener('click', (event) => {
 				dialogHelpGoals.showModal();
 			});
 
-			function getRandomInt(max) {
-				return Math.floor(Math.random() * max);
-			}
+			triggerHelpObstacle.addEventListener('click', (event) => {
+				dialogHelpObstacle.showModal();
+			});
 
-			window.console.log(getStartingPlayer());
+			// End help dialogs
 
-			function getStartingPlayer() {
-				if (optionFirst.checked || getRandomInt(10) % 2 == 0) {
-					return 'human';
-				}
-				return 'andy';
-			}
-
-			const triggersGoalRoll = document.querySelectorAll(".js-goal-roll");
-			const triggersGoalClear = document.querySelectorAll(".js-goal-clear");
-			const valueGoals = document.querySelectorAll(".js-goal-value");
+			// Start goal setting / clearing
 
 			triggersGoalRoll.forEach((triggerGoalRoll) => {
 				triggerGoalRoll.addEventListener('click', (event) => {
@@ -311,24 +519,24 @@
 					let goalOption = '';
 					switch (triggerGoalRoll.dataset.goal) {
 						case 'vp':
-							goalOptions = ["30 VP","31 VP","32 VP","33 VP","34 VP","35 VP","36 VP","37 VP","38 VP","39 VP","40 VP","40 VP"];
+							goalOptions = goalVP;
 						break;
 						case 'resources':
-							goalOptions = ["2 x dates", "2 x salt", "2 x pepper", "1 x gold", "1 x gold<br>1 x resource", "3 x resources"];
+							goalOptions = goalResources;
 							if (optionExpansion.checked) {
-								goalOptions.push("1 x water<br>1 x resource", "1 x water<br>1 x VP", "1 x water<br>1 x gold", "2 x water", "2 x water<br>1 x resource", "3 x water");
+								goalOptions = goalOptions.concat(goalResourcesExpansion);
 							}
 						break;
 						case 'robber':
-							goalOptions = ["Stop after card 14", "Stop after card 15", "Stop after card 16", "Display 10 tribe cards", "Display 11 tribe cards", "Display 12 tribe cards"];
+							goalOptions = goalRobber;
 						break;
 						case 'rows':
-							goalOptions = ["1 x all different", "1 x all same", "1 x all different<br>1 x all same", "2 x all different", "2 x all same", "3 x all different<br>or 3 x all same"];
+							goalOptions = goalRow;
 						break;
 						case 'obstacle':
-							goalOptions = ["You start the game without any resources, just the 4 victory points", "You must pay twice at the third raid", "You can't place your targi opposite the robber", "You lose the ability of your first tribal card (turn this card upside down)", "At every raid, you must pay one extra resource or victory point (each time, choose either)", "At the end of the game, you get one fewer bonus point for each of your completed rows"];
+							goalOptions = goalObstacle;
 							if (optionExpansion.checked) {
-								goalOptions.push("You can't exchange water for gold or resources without using the merchant", "You can't exchange water for gold or resources at the dealer", "You can't splace your targi opposite the targia", "Remove the targia for this game", "Every round, you can only place one targi on a shifting dune", "You can't receive victory points from shifting dunes (you still get resources)");
+								goalOptions = goalOptions.concat(goalObstacleExpansion);
 							}
 						break;
 					}
@@ -354,6 +562,7 @@
 					triggerGoalClear.style.display = "none";
 					valueGoals.forEach((valueGoal) => {
 						if (valueGoal.dataset.goal == triggerGoalClear.dataset.goal) {
+							valueGoal.innerHTML = "";
 							valueGoal.style.display = "none";
 						}
 					});
@@ -366,9 +575,21 @@
 				});
 			});
 
-			document.oncontextmenu = function() {
-				return false;
-			}
+			triggersGoalDrop.forEach((triggerGoalDrop) => {
+				triggerGoalDrop.addEventListener('click', (event) => {
+					valueGoals.forEach((valueGoal) => {
+						if (valueGoal.dataset.goal == triggerGoalDrop.dataset.goal) {
+							valueGoal.innerHTML = textNoGoal;
+						}
+					});
+					triggersGoalDrop.forEach((triggerGoalDrop) => {
+						triggerGoalDrop.style.display = "none";
+					});
+					event.preventDefault();
+				});
+			});
+
+			// End goal setting / clearing
 		</script>
 	</body>
 </html>
