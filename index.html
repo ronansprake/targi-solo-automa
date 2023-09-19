@@ -330,8 +330,13 @@
 
 			// Start helper functions
 
-			function getRandomInt(min, max) {
-				return Math.floor(Math.random() * max) + min;
+			function getRandomInt(min, max, exclude) {
+				var number = Math.floor(Math.random() * max) + min;
+				if (exclude && exclude.includes(number)) {
+					getRandomInt(min, max, exclude);
+				} else {
+					return number;
+				}
 			}
 
 			function getStartingPlayer() {
@@ -365,7 +370,7 @@
 					actionAndyText.innerHTML = '';
 				} else {
 					actionAndy.style = '';
-					actionAndyText.innerHTML = textActionAndy + " " + getRandomInt(1, 15);
+					actionAndyText.innerHTML = textActionAndy + " " + getRandomInt(1, 15, [4, 8, 12]);
 					actionHuman.style.display = 'none';
 					actionHumanText.innerHTML = '';
 				}
