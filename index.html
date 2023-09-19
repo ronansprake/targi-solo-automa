@@ -59,14 +59,14 @@
 			.footer-buttons { display:flex; padding: 30px 20px 0; gap: 40px; }
 			.footer-buttons .button { flex: 1; }
 			.play-area { padding: 30px; display: flex; justify-content: space-between; align-items: center; gap: 10%; }
-			.status { padding: 20px; background: #FFF; border-radius: 8px; box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); text-align:center; min-height: 130px; min-width: 104px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+			.status { padding: 20px; background: #FFF; border-radius: 8px; box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); text-align:center; min-height: 130px; min-width: 120px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
 			.status.centred { justify-content: center; }
 			.status > div { display: flex; flex-direction: column; }
 			.status p { margin: 0; }
 			.status .status-player { font-weight: 700; }
 			.action { width: 100%; text-align: center; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
 			.action p { margin: 0; }
-			.action .button { max-width: 140px; width: 100%; }
+			.action .button { max-width: 150px; width: 100%; }
 			.action-text { height: 44px; display: flex; justify-content: center; align-items: center; gap: 10px }
 			.action-text.action-text-large { font-size: 26px; }
 			.action-buttons { display: flex; justify-content: space-around; width: 100%; }
@@ -314,8 +314,12 @@
 
 			const textDrop = "<br>Drop a goal (optional)";
 			const textNoGoal = "N/A";
+			const textEndOfRound = "End of round";
+			const textResolveActions = "Resolve all actions";
 			const textActionHuman = "Place your targi";
 			const textActionAndy = "Card";
+			const textActionDone = "Done";
+			const textActionStartRound = "Start round";
 
 			let currentPlayer = '';
 			let currentRound = 1;
@@ -368,6 +372,18 @@
 				}
 			}
 
+			function setRoundEndInfo() {
+				statusRound.innerHTML = textEndOfRound + " " + (currentRound - 1);
+				statusTurn.style.display = 'none';
+				statusPlayer.style.display = 'none';
+				actionAndy.style.display = 'none';
+				actionAndyText.innerHTML = '';
+				actionHuman.style = '';
+				statusBox.classList.add("centred");
+				actionHumanText.innerHTML = textResolveActions;
+				buttonActionDone.innerHTML = textActionStartRound + " " + currentRound;
+			}
+
 			function setRaidInfo() {
 				statusRound.innerHTML = "Raid " + currentRaid;
 				statusTurn.style.display = 'none';
@@ -381,6 +397,7 @@
 				} else {
 					actionHumanText.innerHTML = raids[currentRaid - 1];
 				}
+				buttonActionDone.innerHTML = textActionStartRound + " " + currentRound;
 			}
 
 			function setActions() {
@@ -401,18 +418,23 @@
 					hideGoalButtons();
 					setRoundInfo();
 					setActions();
+					buttonActionDone.innerHTML = textActionDone;
 				} else {
 					currentTurn = 0;
 					currentRound = currentRound + 1;
-					currentRaid = currentRaid + 1;
-					setRaidInfo();
 					setActions();
-					if (currentRaid == 2 && optionDrop.checked) {
-						showGoalDropButtons();
-						actionHumanText.innerHTML += textDrop;
-					}
-					if (currentRaid == 4) {
-						actionButtons.style.display = 'none';
+					if (currentRound == 4 || currentRound == 7 || currentRound == 10 || currentRound == 13) {
+						currentRaid = currentRaid + 1;
+						setRaidInfo();
+						if (currentRaid == 2 && optionDrop.checked) {
+							showGoalDropButtons();
+							actionHumanText.innerHTML += textDrop;
+						}
+						if (currentRaid == 4) {
+							actionButtons.style.display = 'none';
+						}
+					} else {
+						setRoundEndInfo();
 					}
 				}
 			}
