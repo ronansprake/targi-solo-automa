@@ -262,7 +262,6 @@
 			const buttonBack = document.getElementById('button-back');
 			const buttonReset = document.getElementById('button-reset');
 			const buttonStart = document.getElementById('button-start');
-			const actionButtons = document.getElementById('action-buttons');
 			const buttonActionDone = document.getElementById('button-action-done');
 			const buttonActionReroll = document.getElementById('button-action-reroll');
 
@@ -271,6 +270,7 @@
 			const playArea = document.getElementById('play-area');
 			const statusBox = document.getElementById('status-box');
 			const displayNumberRerolls = document.getElementById('display-number-rerolls');
+			const actionButtons = document.getElementById('action-buttons');
 
 			const statusRound = document.getElementById('status-round');
 			const statusTurn = document.getElementById('status-turn');
@@ -300,6 +300,7 @@
 			const dialogHelpGoals = document.getElementById('dialog-help-goals');
 			const dialogHelpObstacle = document.getElementById('dialog-help-obstacle');
 
+			// Split some out, to ensure expansion goals are only shown when appropriate
 			const goalVP = ["30 VP","31 VP","32 VP","33 VP","34 VP","35 VP","36 VP","37 VP","38 VP","39 VP","40 VP","40 VP"];
 			const goalResources = ["2 x dates", "2 x salt", "2 x pepper", "1 x gold", "1 x gold<br>1 x resource", "3 x resources"];
 			const goalResourcesExpansion = ["1 x water<br>1 x resource", "1 x water<br>1 x VP", "1 x water<br>1 x gold", "2 x water", "2 x water<br>1 x resource", "3 x water"];
@@ -330,9 +331,10 @@
 
 			// Start helper functions
 
+			// Used to determine starting player, Andy's move, etc
 			function getRandomInt(min, max, exclude) {
 				var num = Math.floor(Math.random() * max) + min;
-				window.console.log(num);
+				// Used "exclude" because Andy can't roll a raid card number
 				if (exclude && exclude.includes(num)) {
 					return getRandomInt(min, max, exclude);
 				} else {
@@ -340,6 +342,7 @@
 				}
 			}
 
+			// Determine who starts the game
 			function getStartingPlayer() {
 				if (optionFirst.checked || getRandomInt(0, 10) % 2 == 0) {
 					return 'You';
@@ -358,25 +361,27 @@
 			}
 
 			function setRoundInfo() {
+				// Populate the round status info
 				statusRound.innerHTML = "Round " + currentRound;
 				statusTurn.style = '';
 				statusTurn.innerHTML = "Turn " + Math.ceil(currentTurn / 2);
 				statusPlayer.style = '';
 				statusPlayer.innerHTML = currentPlayer;
-				statusBox.classList.remove("centred");
+				statusBox.classList.remove("centred"); // Vertically centre when only one line of text
 				if (currentPlayer == "You") {
-					actionHuman.style = '';
+					actionHuman.style = ''; // Reveal "human" action line
 					actionHumanText.innerHTML = textActionHuman;
 					actionAndy.style.display = 'none';
 					actionAndyText.innerHTML = '';
 				} else {
-					actionAndy.style = '';
+					actionAndy.style = ''; // Reveal AI action line
 					actionAndyText.innerHTML = textActionAndy + " " + getRandomInt(1, 15, [4, 8, 12]);
 					actionHuman.style.display = 'none';
 					actionHumanText.innerHTML = '';
 				}
 			}
 
+			// I like to show the round numbers all the time, since it's easy to lose track when playing
 			function setRoundEndInfo() {
 				statusRound.innerHTML = textEndOfRound + " " + (currentRound - 1);
 				statusTurn.style.display = 'none';
@@ -389,6 +394,7 @@
 				buttonActionDone.innerHTML = textActionStartRound + " " + currentRound;
 			}
 
+			// Displays the current raid requirements
 			function setRaidInfo() {
 				statusRound.innerHTML = "Raid " + currentRaid;
 				statusTurn.style.display = 'none';
@@ -397,6 +403,7 @@
 				actionAndyText.innerHTML = '';
 				actionHuman.style = '';
 				statusBox.classList.add("centred");
+				// Use either the base or expansion raid cards
 				if (optionExpansion.checked) {
 					actionHumanText.innerHTML = raidsExpansion[currentRaid - 1];
 				} else {
@@ -405,6 +412,7 @@
 				buttonActionDone.innerHTML = textActionStartRound + " " + currentRound;
 			}
 
+			// Display the correct actions relevant to current player
 			function setActions() {
 				if (currentPlayer == 'Andy' && currentTurn > 0 && optionRerolls.checked && currentRerolls < 2) {
 					displayNumberRerolls.innerHTML = 2 - currentRerolls;
@@ -416,6 +424,7 @@
 				}
 			}
 
+			// Setup for a new turn
 			function startNewTurn() {
 				setCurrentPlayer();
 				if (currentTurn < 6) {
@@ -428,13 +437,16 @@
 					currentTurn = 0;
 					currentRound = currentRound + 1;
 					setActions();
+					// Trigger a raid on set rounds
 					if (currentRound == 4 || currentRound == 7 || currentRound == 10 || currentRound == 13) {
 						currentRaid = currentRaid + 1;
 						setRaidInfo();
+						// Optionally allow goal drop on raid 2 (house rule)
 						if (currentRaid == 2 && optionDrop.checked) {
 							showGoalDropButtons();
 							actionHumanText.innerHTML += textDrop;
 						}
+						// Hide action buttons on final raid
 						if (currentRaid == 4) {
 							actionButtons.style.display = 'none';
 						}
@@ -444,9 +456,10 @@
 				}
 			}
 
+			// Re-rolls Andy's selection - can be the same number, as per a real dice
 			function takeReroll() {
 				var currentRoll = actionAndyText.innerHTML;
-				var newRoll = textActionAndy + " " + getRandomInt(1, 15);
+				var newRoll = textActionAndy + " " + getRandomInt(1, 15, [4, 8, 12]);
 				if (currentRoll == newRoll) {
 					takeReroll();
 				} else {
@@ -456,6 +469,7 @@
 				}
 			}
 
+			// Turn on the "drop" buttons on each goal
 			function showGoalDropButtons() {
 				triggersGoalDrop.forEach((triggerGoalDrop) => {
 					valueGoals.forEach((valueGoal) => {
@@ -468,6 +482,7 @@
 				});
 			}
 
+			// Turn off all buttons on each goal
 			function hideGoalButtons() {
 				triggersGoalRoll.forEach((triggerGoalRoll) => {
 					triggerGoalRoll.style.display = "none";
@@ -480,8 +495,9 @@
 				});
 			}
 
+			// Suppress right-click
 			document.oncontextmenu = function() {
-				return false; // Suppress right-click
+				return false;
 			}
 
 			// End helper functions
@@ -491,6 +507,7 @@
 			buttonIntroContinue.addEventListener('click', (event) => {
 				stageIntro.style.display = "none";
 				stageGame.style = "";
+				// This class shows / hides any expansion-specific text (e.g. in help dialogs)
 				if (optionExpansion.checked) {
 					body.classList.remove("no-expansion");
 				} else {
@@ -505,6 +522,7 @@
 				event.preventDefault();
 			});
 
+			// Sets the stage for a new game
 			buttonStart.addEventListener('click', (event) => {
 				valueGoals.forEach((valueGoal) => {
 					if (valueGoal.innerHTML == "") {
