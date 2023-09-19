@@ -331,11 +331,12 @@
 			// Start helper functions
 
 			function getRandomInt(min, max, exclude) {
-				var number = Math.floor(Math.random() * max) + min;
-				if (exclude && exclude.includes(number)) {
-					getRandomInt(min, max, exclude);
+				var num = Math.floor(Math.random() * max) + min;
+				window.console.log(num);
+				if (exclude && exclude.includes(num)) {
+					return getRandomInt(min, max, exclude);
 				} else {
-					return number;
+					return num;
 				}
 			}
 
