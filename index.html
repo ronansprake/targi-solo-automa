@@ -22,12 +22,14 @@
 			.hide { text-indent: -99em; position: absolute; left: -9999px; width: 0; height: 0; }
 			svg { display:block; }
 			ul, li { list-style: none; padding: 0; }
-			.unordered-list li { list-style: inside disc; }
+			.unordered-list { padding: 0 20px; }
+			.unordered-list li { list-style: outside disc; margin-bottom: 5px; }
 			fieldset { border: none; padding: 0; }
-			dialog { width: 480px; max-width: 80vw; }
-			dialog button { position: absolute; top: 20px; right: 20px; }
+			dialog { width: 480px; max-width: 80vw; padding: 20px; }
+			dialog button { position: absolute; top: 25px; right: 20px; }
 			dialog h2 { margin: 0 0 30px; }
 			dialog h3 { margin: 30px 0 20px; }
+			dialog p { margin: 0 0 20px; }
 			.visually-hidden { visibility: hidden; }
 			button { background: none; border: none; cursor: pointer; padding: 0; }
 			.button { border-radius: 4px; background: var(--neutral-800); color: #FFF; font-size: 16px; border: none; cursor: pointer; line-height: 18px; padding: 16px; display: flex; justify-content: center;}
@@ -57,18 +59,19 @@
 			.stage-intro, .stage-game {margin-bottom: 30px;}
 			.footer-buttons { display:flex; padding: 30px 20px 0; gap: 40px; }
 			.footer-buttons .button { flex: 1; }
-			.play-area { padding: 30px; display: flex; justify-content: space-between; align-items: center; }
+			.play-area { padding: 30px; display: flex; justify-content: space-between; align-items: center; gap: 10%; }
 			.status { padding: 20px; background: #FFF; border-radius: 8px; box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); text-align:center; min-height: 130px; min-width: 104px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
 			.status.centred { justify-content: center; }
 			.status > div { display: flex; flex-direction: column; }
 			.status p { margin: 0; }
 			.status .status-player { font-weight: 700; }
-			.action { width: 190px; text-align: center; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
+			.action { width: 100%; text-align: center; display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
 			.action p { margin: 0; }
-			.action .button { max-width:140px; }
+			.action .button { max-width: 140px; width: 100%; }
 			.action-text { height: 44px; display: flex; justify-content: center; align-items: center; gap: 10px }
 			.action-text.action-text-large { font-size: 26px; }
 			.action-buttons { display: flex; justify-content: space-around; width: 100%; }
+			.no-expansion .help-expansion { display: none; }
 		</style>
 	</head>
 
@@ -206,14 +209,14 @@
 					<li>Display 10 / 11 / 12 tribe cards</li>
 				</ul>
 				<h3>Rows</h3>
-				<p>At the end of the game you must have a number of rows in your display:</p>
+				<p>At game end, you must have full rows in your display:</p>
 				<ul class="unordered-list">
 					<li>Minimum of 1 row with (all different cards / all same cards)</li>
 					<li>Minimum of 1 row with all different cards + 1 row with all same cards</li>
 					<li>Minimum of 2 rows with (all different cards / all same cards)</li>
 					<li>3 rows all with (all different cards / all same cards)</li>
 				</ul>
-				<button type="submit" autofocus>close</button>
+				<button type="submit" class="button-tertiary" autofocus>close</button>
 			</form>
 		</dialog>
 
@@ -235,7 +238,7 @@
 					<li>At the end of the game, you get one less bonus point for each completed row</li>
 					<li class="help-expansion">You can't receive victory points from shifting dunes (you still get resources)</li>
 				</ul>
-				<button type="submit" autofocus>close</button>
+				<button type="submit" class="button-tertiary" autofocus>close</button>
 			</form>
 		</dialog>
 
@@ -248,13 +251,15 @@
 					<p>If Andy would place his targi on the card occupied by the robber OR on card 15 which is occupied or forbidden, do not place his targi on the next free card. Instead, put it on the next free shifting sand dune (whichever is closest to the dune deck. If there is not a free shifting dune, his targi is placed on the noble card (1) or the next free clockwise card as usual.
 					<p>Every shifting sand dune claimed by Andy is discarded.</p>
 				</div>
-				<button type="submit" autofocus>close</button>
+				<button type="submit" class="button-tertiary" autofocus>close</button>
 			</form>
 		</dialog>
 
 		<script>
 
 			// Start constants / lets
+
+			const body = document.querySelector("body");
 
 			const buttonIntroContinue = document.getElementById('button-intro-continue');
 			const buttonBack = document.getElementById('button-back');
@@ -310,7 +315,7 @@
 			const raidsExpansion = ["1 x pepper / 1 x VP", "1 x salt, dates / 1 x VP", "1 x salt, dates, pepper / 1 x VP", "1 x gold / 1 x 4th tribe card"];
 
 			const textDrop = "<br>Drop a goal (optional)";
-			const textNoGoal = "No goal"
+			const textNoGoal = "N/A";
 			const textActionHuman = "Place your targi";
 			const textActionAndy = "Card";
 
@@ -395,6 +400,7 @@
 				setCurrentPlayer();
 				if (currentTurn < 6) {
 					currentTurn = currentTurn + 1;
+					hideGoalButtons();
 					setRoundInfo();
 					setActions();
 				} else {
@@ -403,7 +409,7 @@
 					currentRaid = currentRaid + 1;
 					setRaidInfo();
 					setActions();
-					if (currentRaid == 2) {
+					if (currentRaid == 2 && optionDrop.checked) {
 						showGoalDropButtons();
 						actionHumanText.innerHTML += textDrop;
 					}
@@ -437,6 +443,18 @@
 				});
 			}
 
+			function hideGoalButtons() {
+				triggersGoalRoll.forEach((triggerGoalRoll) => {
+					triggerGoalRoll.style.display = "none";
+				});
+				triggersGoalClear.forEach((triggerGoalClear) => {
+					triggerGoalClear.style.display = "none";
+				});
+				triggersGoalDrop.forEach((triggerGoalDrop) => {
+					triggerGoalDrop.style.display = "none";
+				});
+			}
+
 			document.oncontextmenu = function() {
 				return false; // Suppress right-click
 			}
@@ -448,6 +466,11 @@
 			buttonIntroContinue.addEventListener('click', (event) => {
 				stageIntro.style.display = "none";
 				stageGame.style = "";
+				if (optionExpansion.checked) {
+					body.classList.remove("no-expansion");
+				} else {
+					body.classList.add("no-expansion");
+				}
 				event.preventDefault();
 			});
 
@@ -458,12 +481,6 @@
 			});
 
 			buttonStart.addEventListener('click', (event) => {
-				triggersGoalRoll.forEach((triggerGoalRoll) => {
-					triggerGoalRoll.style.display = "none";
-				});
-				triggersGoalClear.forEach((triggerGoalClear) => {
-					triggerGoalClear.style.display = "none";
-				});
 				valueGoals.forEach((valueGoal) => {
 					if (valueGoal.innerHTML == "") {
 						valueGoal.innerHTML = textNoGoal;
